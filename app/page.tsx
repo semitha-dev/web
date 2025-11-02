@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface Book {
   _id: string;
@@ -12,12 +12,15 @@ interface Book {
 export default function Home() {
   const [books, setBooks] = useState<Book[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  
 
   useEffect(() => {
     fetchBook();
   }, []);
 
   const fetchBook = async () => {
+    setIsLoading(true)
     try {
       const response = await fetch("/api/books");
       const result = await response.json();
@@ -28,6 +31,8 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching books:", error);
       setErrorMessage("Failed to load books");
+    }finally{
+      setIsLoading(false)
     }
   };
 
@@ -67,6 +72,11 @@ export default function Home() {
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold">All Books</h2>
         </div>
+       {isLoading ? (
+          <div className="p-6 text-center text-gray-900 text-2xl">
+            Loading Please wait....
+          </div>
+        ) : (
         <div className="divide-y divide-gray-200">
           {books.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
@@ -100,6 +110,7 @@ export default function Home() {
             ))
           )}
         </div>
+        )}
       </div>
     </div>
   );
